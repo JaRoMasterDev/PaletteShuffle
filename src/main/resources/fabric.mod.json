@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "blockshuffle",
+  "version": "${version}",
+  "name": "BlockShuffle",
+  "description": "A mod that randomly shuffles through your hotbar to allow random placement of blocks.",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/blockshuffle/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.jarnerolf.blockshuffle.client.BlockshuffleDataGenerator"
+    ],
+    "client": [
+      "org.jarnerolf.blockshuffle.client.BlockshuffleClient"
+    ],
+    "main": [
+      "org.jarnerolf.blockshuffle.Blockshuffle"
+    ]
+  },
+  "mixins": [
+    "blockshuffle.mixins.json",
+    {
+      "config": "blockshuffle.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
