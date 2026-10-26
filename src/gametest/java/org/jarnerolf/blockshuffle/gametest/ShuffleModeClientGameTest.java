@@ -1,5 +1,7 @@
 package org.jarnerolf.blockshuffle.gametest;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import java.io.IOException;
@@ -8,17 +10,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.TestInput;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +36,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jarnerolf.blockshuffle.client.ShuffleSettingsScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,14 +82,13 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             context.waitFor(mc -> !mc.player.getInventory().getItem(5).isEmpty());
             context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(8));
             context.waitTicks(2);
-            Path highlightOff = context.takeScreenshot("highlight_off");
             context.getInput().pressKey(InputConstants.KEY_K);
             context.waitTicks(2);
             int slotAfterEnable = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
             LOGGER.info("[BlockShuffleTest] slot after enabling: {}", slotAfterEnable);
             check(slotAfterEnable >= 0 && slotAfterEnable < HOTBAR_BLOCKS.length,
                     "enabling did not select a block slot, selected " + slotAfterEnable);
-            checkHighlight(highlightOff, context.takeScreenshot("highlight_on"));
+            checkHighlight("automatic", Set.of(0, 1, 2, 3), Set.of());
 
             analyze("creative / spam clicking, 1 click per tick", spamPlacements(200, 1, 0), false);
             analyze("creative / spam clicking, 1 click per 1-3 ticks", spamPlacements(200, 1, 2), false);
@@ -97,7 +106,79 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             long switches = disabled.stream().filter(p -> p.slotBefore != p.slotAfter).count();
             LOGGER.info("[BlockShuffleTest] disabled: {} slot switches in {} placements", switches, disabled.size());
             check(switches == 0, "slot still switched while shuffle mode was disabled");
+
+            testManualMode();
         }
+    }
+
+    /**
+     * Configures manual mode through the settings screen like a player would: stone weight 3,
+     * glass weight 1, oak planks unchecked and gold weight 2. Then only the three checked block slots
+     * may be highlighted, and they must be placed 3:1:2.
+     */
+    private void testManualMode() {
+        fillHotbar("creative");
+        server.runCommand("item replace entity @a hotbar.5 with minecraft:diamond_sword");
+        context.waitFor(mc -> !mc.player.getInventory().getItem(5).isEmpty());
+
+        TestInput input = context.getInput();
+        input.pressKey(InputConstants.KEY_J);
+        context.waitForScreen(ShuffleSettingsScreen.class);
+        context.takeScreenshot("settings_automatic");
+
+        clickWidget(CycleButton.class, 0);
+        clickWidget(Checkbox.class, 2);
+        typeWeight(0, "3");
+        typeWeight(3, "2");
+        context.takeScreenshot("settings_manual");
+        context.clickScreenButton("gui.done");
+        context.waitForScreen(null);
+
+        JsonObject saved;
+        try {
+            saved = JsonParser.parseString(Files.readString(
+                    FabricLoader.getInstance().getConfigDir().resolve("blockshuffle.json"))).getAsJsonObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        LOGGER.info("[BlockShuffleTest] saved settings: {}", saved);
+        check(saved.get("manual").getAsBoolean(), "manual mode was not saved");
+        check(saved.get("weights").toString().startsWith("[3,1,1,2,"), "weights were not saved: " + saved);
+        check(saved.get("selected").toString().startsWith("[true,true,false,true,"), "slots were not saved: " + saved);
+
+        input.pressKey(InputConstants.KEY_K);
+        checkHighlight("manual", Set.of(0, 1, 3), Set.of(0, 1, 3));
+
+        analyze("manual / stone 3, glass 1, planks off, gold 2", spamPlacements(400, 1, 0), false,
+                new double[] {3 / 6.0, 1 / 6.0, 0, 2 / 6.0});
+    }
+
+    /** Clicks the {@code index}-th widget of this type on the open screen, counted from the left. */
+    private void clickWidget(Class<? extends AbstractWidget> type, int index) {
+        double[] center = context.computeOnClient(mc -> {
+            AbstractWidget widget = mc.gui.screen().children().stream()
+                    .filter(type::isInstance)
+                    .map(AbstractWidget.class::cast)
+                    .sorted(Comparator.comparingInt(AbstractWidget::getX))
+                    .toList()
+                    .get(index);
+            int scale = mc.getWindow().getGuiScale();
+            return new double[] {
+                    (widget.getX() + widget.getWidth() / 2.0) * scale,
+                    (widget.getY() + widget.getHeight() / 2.0) * scale};
+        });
+        context.getInput().setCursorPos(center[0], center[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+    }
+
+    private void typeWeight(int slot, String weight) {
+        clickWidget(EditBox.class, slot);
+        TestInput input = context.getInput();
+        input.pressKey(InputConstants.KEY_END);
+        for (int i = 0; i < 3; i++) {
+            input.pressKey(InputConstants.KEY_BACKSPACE);
+        }
+        input.typeChars(weight);
     }
 
     private void setUpArena() {
@@ -228,10 +309,22 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
     }
 
     /**
-     * Compares the top-left pixel of every hotbar slot's interior, which no item covers, between a
-     * screenshot taken before and one taken after enabling shuffle mode.
+     * Expects shuffle mode to be enabled and compares the top-left pixel of every hotbar slot's
+     * interior, which no item covers, with the same pixel once shuffle mode is turned off again.
+     * Turning it off keeps the selected slot, so the first-person hand, which shows through the
+     * translucent hotbar, looks the same in both screenshots. Shuffle mode is enabled again afterwards.
+     * Also checks that a chance label appears right above exactly the {@code labelledSlots}.
      */
-    private void checkHighlight(Path off, Path on) {
+    private void checkHighlight(String name, Set<Integer> highlightedSlots, Set<Integer> labelledSlots) {
+        TestInput input = context.getInput();
+        context.waitTicks(10);
+        Path on = context.takeScreenshot(name + "_highlight_on");
+        input.pressKey(InputConstants.KEY_K);
+        context.waitTicks(2);
+        Path off = context.takeScreenshot(name + "_highlight_off");
+        input.pressKey(InputConstants.KEY_K);
+        context.waitTicks(2);
+
         int guiWidth = context.computeOnClient(mc -> mc.getWindow().getGuiScaledWidth());
         int guiHeight = context.computeOnClient(mc -> mc.getWindow().getGuiScaledHeight());
 
@@ -245,14 +338,39 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
                 int greenGain = ARGB.green(onImage.getPixel(x, y)) - ARGB.green(offImage.getPixel(x, y));
                 gains.append(slot).append('=').append(greenGain).append(' ');
 
-                boolean shouldHighlight = slot < HOTBAR_BLOCKS.length;
+                boolean shouldHighlight = highlightedSlots.contains(slot);
                 check(shouldHighlight ? greenGain > 30 : Math.abs(greenGain) < 10, "slot " + slot
                         + (shouldHighlight ? " not highlighted" : " highlighted") + ", green gain " + greenGain);
             }
-            LOGGER.info("[BlockShuffleTest] highlight green gain per slot: {}", gains);
+            LOGGER.info("[BlockShuffleTest] {} highlight green gain per slot: {}", name, gains);
+
+            // White label text in the 20x9 area above each slot, compared with the screenshot without it.
+            StringBuilder labelPixels = new StringBuilder();
+            for (int slot = 0; slot < 9; slot++) {
+                int newWhitePixels = 0;
+                for (int gx = guiWidth / 2 - 91 + 1 + slot * 20; gx < guiWidth / 2 - 91 + 21 + slot * 20; gx++) {
+                    for (int gy = guiHeight - 31; gy < guiHeight - 22; gy++) {
+                        int x = (int) ((gx + 0.5) * scale);
+                        int y = (int) ((gy + 0.5) * scale);
+                        if (isWhite(onImage.getPixel(x, y)) && !isWhite(offImage.getPixel(x, y))) {
+                            newWhitePixels++;
+                        }
+                    }
+                }
+                labelPixels.append(slot).append('=').append(newWhitePixels).append(' ');
+
+                boolean shouldLabel = labelledSlots.contains(slot);
+                check(shouldLabel ? newWhitePixels > 15 : newWhitePixels == 0, "slot " + slot
+                        + (shouldLabel ? " has no chance label" : " has a chance label") + ", " + newWhitePixels + " white pixels");
+            }
+            LOGGER.info("[BlockShuffleTest] {} chance label pixels per slot: {}", name, labelPixels);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static boolean isWhite(int argb) {
+        return ARGB.red(argb) > 230 && ARGB.green(argb) > 230 && ARGB.blue(argb) > 230;
     }
 
     private int selectedSlot() {
@@ -260,6 +378,14 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
     }
 
     private void analyze(String name, List<Placement> placements, boolean checkHeld) {
+        analyze(name, placements, checkHeld, new double[] {0.25, 0.25, 0.25, 0.25});
+    }
+
+    /**
+     * Checks the placed blocks against the expected probability of each of the {@link #HOTBAR_BLOCKS},
+     * allowing four standard deviations of random noise.
+     */
+    private void analyze(String name, List<Placement> placements, boolean checkHeld, double[] expected) {
         int n = placements.size();
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (String id : HOTBAR_BLOCKS) {
@@ -286,21 +412,38 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             }
         }
 
+        double expectedRepeats = 0;
+        double maxProbability = 0;
+        StringBuilder expectedCounts = new StringBuilder();
+        for (int i = 0; i < expected.length; i++) {
+            expectedRepeats += expected[i] * expected[i];
+            maxProbability = Math.max(maxProbability, expected[i]);
+            expectedCounts.append(HOTBAR_BLOCKS[i]).append('=').append(Math.round(n * expected[i])).append(' ');
+        }
+        // A longer run than this happens by chance in fewer than 1 in 1000 test runs.
+        int maxRun = 1;
+        while (n * Math.pow(maxProbability, maxRun) >= 0.001) {
+            maxRun++;
+        }
+
         LOGGER.info("[BlockShuffleTest] === {} ({} placements) ===", name, n);
-        LOGGER.info("[BlockShuffleTest] counts: {}", counts);
-        LOGGER.info("[BlockShuffleTest] same block as previous: {} ({}%, expected ~25%)",
-                sameAsPrevious, Math.round(100.0 * sameAsPrevious / (n - 1)));
+        LOGGER.info("[BlockShuffleTest] counts: {} (expected {})", counts, expectedCounts.toString().trim());
+        LOGGER.info("[BlockShuffleTest] same block as previous: {} ({}%, expected ~{}%)", sameAsPrevious,
+                Math.round(100.0 * sameAsPrevious / (n - 1)), Math.round(100 * expectedRepeats));
         LOGGER.info("[BlockShuffleTest] longest run of one block: {}", longestRun);
         LOGGER.info("[BlockShuffleTest] placed != held: {}", mismatches);
         LOGGER.info("[BlockShuffleTest] sequence (hotbar slot of each placed block): {}", sequence);
 
         check(counts.size() == HOTBAR_BLOCKS.length, name + ": unexpected block placed " + counts);
-        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-            check(entry.getValue() > n * 0.10 && entry.getValue() < n * 0.42,
-                    name + ": " + entry.getKey() + " placed " + entry.getValue() + " of " + n + " times");
+        for (int i = 0; i < HOTBAR_BLOCKS.length; i++) {
+            int count = counts.get(HOTBAR_BLOCKS[i]);
+            double mean = n * expected[i];
+            double tolerance = 4 * Math.sqrt(n * expected[i] * (1 - expected[i])) + 1;
+            check(Math.abs(count - mean) <= tolerance, name + ": " + HOTBAR_BLOCKS[i] + " placed " + count
+                    + " of " + n + " times, expected " + Math.round(mean));
         }
-        check(sameAsPrevious < (n - 1) * 0.40, name + ": too many repeats " + sameAsPrevious);
-        check(longestRun <= 7, name + ": run of " + longestRun + " identical blocks");
+        check(sameAsPrevious < (n - 1) * (expectedRepeats + 0.15), name + ": too many repeats " + sameAsPrevious);
+        check(longestRun <= maxRun, name + ": run of " + longestRun + " identical blocks");
         check(mismatches == 0, name + ": " + mismatches + " placements used a different block than held");
     }
 
