@@ -1,6 +1,11 @@
 package org.jarnerolf.blockshuffle.gametest;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.NativeImage;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -17,6 +22,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -60,15 +66,20 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             setUpArena();
             fillHotbar("creative");
 
-            // Enabling must jump from an empty slot to one of the four block slots.
+            // Enabling must jump from an empty slot to one of the four block slots and highlight
+            // exactly those, not the sword or the empty slots.
+            server.runCommand("item replace entity @a hotbar.5 with minecraft:diamond_sword");
+            context.waitFor(mc -> !mc.player.getInventory().getItem(5).isEmpty());
             context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(8));
-            context.waitTick();
+            context.waitTicks(2);
+            Path highlightOff = context.takeScreenshot("highlight_off");
             context.getInput().pressKey(InputConstants.KEY_K);
             context.waitTicks(2);
             int slotAfterEnable = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
             LOGGER.info("[BlockShuffleTest] slot after enabling: {}", slotAfterEnable);
             check(slotAfterEnable >= 0 && slotAfterEnable < HOTBAR_BLOCKS.length,
                     "enabling did not select a block slot, selected " + slotAfterEnable);
+            checkHighlight(highlightOff, context.takeScreenshot("highlight_on"));
 
             analyze("creative / spam clicking, 1 click per tick", spamPlacements(200, 1, 0), false);
             analyze("creative / spam clicking, 1 click per 1-3 ticks", spamPlacements(200, 1, 2), false);
@@ -214,6 +225,34 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             context.waitTicks(2);
         }
         return placements;
+    }
+
+    /**
+     * Compares the top-left pixel of every hotbar slot's interior, which no item covers, between a
+     * screenshot taken before and one taken after enabling shuffle mode.
+     */
+    private void checkHighlight(Path off, Path on) {
+        int guiWidth = context.computeOnClient(mc -> mc.getWindow().getGuiScaledWidth());
+        int guiHeight = context.computeOnClient(mc -> mc.getWindow().getGuiScaledHeight());
+
+        try (NativeImage offImage = NativeImage.read(Files.newInputStream(off));
+             NativeImage onImage = NativeImage.read(Files.newInputStream(on))) {
+            double scale = (double) onImage.getWidth() / guiWidth;
+            StringBuilder gains = new StringBuilder();
+            for (int slot = 0; slot < 9; slot++) {
+                int x = (int) ((guiWidth / 2 - 91 + 3 + slot * 20 + 0.5) * scale);
+                int y = (int) ((guiHeight - 22 + 3 + 0.5) * scale);
+                int greenGain = ARGB.green(onImage.getPixel(x, y)) - ARGB.green(offImage.getPixel(x, y));
+                gains.append(slot).append('=').append(greenGain).append(' ');
+
+                boolean shouldHighlight = slot < HOTBAR_BLOCKS.length;
+                check(shouldHighlight ? greenGain > 30 : Math.abs(greenGain) < 10, "slot " + slot
+                        + (shouldHighlight ? " not highlighted" : " highlighted") + ", green gain " + greenGain);
+            }
+            LOGGER.info("[BlockShuffleTest] highlight green gain per slot: {}", gains);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private int selectedSlot() {
