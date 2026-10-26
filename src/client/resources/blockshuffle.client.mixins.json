@@ -4,6 +4,7 @@
   "package": "org.jarnerolf.blockshuffle.mixin.client",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "BlockItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

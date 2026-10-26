@@ -1,0 +1,7 @@
+{
+  "key.category.blockshuffle.main": "BlockShuffle",
+  "key.blockshuffle.toggle": "Toggle Shuffle Mode",
+  "message.blockshuffle.enabled": "Block shuffle enabled",
+  "message.blockshuffle.enabled_no_blocks": "Block shuffle enabled (no blocks in hotbar)",
+  "message.blockshuffle.disabled": "Block shuffle disabled"
+}
