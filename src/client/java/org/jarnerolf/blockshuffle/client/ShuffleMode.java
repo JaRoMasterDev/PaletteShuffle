@@ -44,16 +44,17 @@ public final class ShuffleMode {
     }
 
     /**
-     * Called when the local player placed a block with their main hand. The actual slot
-     * change is deferred to the end of the tick so the ongoing use-item flow is not disturbed.
+     * Called when the local player tries to place a block with their main hand. The actual slot
+     * change is deferred so the ongoing use-item flow is not disturbed: it happens at the end of
+     * the tick, or before the next right-click if that comes first.
      */
-    public static void onBlockPlaced() {
+    public static void onPlacementAttempt() {
         if (enabled) {
             shufflePending = true;
         }
     }
 
-    public static void tick(LocalPlayer player) {
+    public static void applyPendingShuffle(LocalPlayer player) {
         if (shufflePending) {
             shufflePending = false;
             selectRandomBlock(player);

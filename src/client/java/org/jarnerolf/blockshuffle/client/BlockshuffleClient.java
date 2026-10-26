@@ -32,7 +32,7 @@ public class BlockshuffleClient implements ClientModInitializer {
             while (toggleKey.consumeClick()) {
                 ShuffleMode.toggle(client.player);
             }
-            ShuffleMode.tick(client.player);
+            ShuffleMode.applyPendingShuffle(client.player);
         });
     }
 }

@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class BlockItemMixin {
 
     // Fires for the client-side placement prediction; the integrated server's own call is skipped.
+    // The predicted result is ignored on purpose: the server makes its own placement attempt and can
+    // succeed even when the client's (possibly outdated) view of the world made the prediction fail.
     @Inject(method = "place", at = @At("RETURN"))
     private void blockshuffle$onPlace(BlockPlaceContext context, CallbackInfoReturnable<InteractionResult> cir) {
-        if (context.getLevel().isClientSide()
-                && context.getHand() == InteractionHand.MAIN_HAND
-                && cir.getReturnValue().consumesAction()) {
-            ShuffleMode.onBlockPlaced();
+        if (context.getLevel().isClientSide() && context.getHand() == InteractionHand.MAIN_HAND) {
+            ShuffleMode.onPlacementAttempt();
         }
     }
 }
