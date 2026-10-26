@@ -1,6 +1,7 @@
 package org.jarnerolf.blockshuffle.client;
 
 import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,11 +24,14 @@ public final class ShuffleMode {
         shufflePending = false;
 
         if (!enabled) {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.disabled"));
+            player.sendOverlayMessage(Component.translatable("message.blockshuffle.disabled")
+                    .withStyle(ChatFormatting.RED));
         } else if (selectRandomBlock(player)) {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled"));
+            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled")
+                    .withStyle(ChatFormatting.GREEN));
         } else {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled_no_blocks"));
+            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled_no_blocks")
+                    .withStyle(ChatFormatting.GREEN));
         }
     }
 
