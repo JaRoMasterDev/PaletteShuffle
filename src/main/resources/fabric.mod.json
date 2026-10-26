@@ -3,9 +3,13 @@
   "id": "blockshuffle",
   "version": "${version}",
   "name": "BlockShuffle",
-  "description": "A mod that randomly shuffles through your hotbar to allow random placement of blocks.",
-  "authors": [],
-  "contact": {},
+  "description": "Places your blocks in a random mix. Press K to toggle shuffle mode: after every block you place, your hotbar switches to a random block. Press J to choose which hotbar slots take part and how likely each one is.",
+  "authors": [
+    "Jarne Rolf"
+  ],
+  "contact": {
+    "homepage": "https://jarne-rolf.de"
+  },
   "license": "All-Rights-Reserved",
   "icon": "assets/blockshuffle/icon.png",
   "environment": "client",
