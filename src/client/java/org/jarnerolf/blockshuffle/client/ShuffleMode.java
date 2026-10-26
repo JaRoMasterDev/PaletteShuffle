@@ -6,6 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Client-side state of the shuffle mode: when enabled, the selected hotbar slot
@@ -17,6 +18,17 @@ public final class ShuffleMode {
     private static boolean shufflePending;
 
     private ShuffleMode() {
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Whether the shuffle can pick a hotbar slot holding this stack.
+     */
+    public static boolean isShuffleCandidate(ItemStack stack) {
+        return stack.getItem() instanceof BlockItem;
     }
 
     public static void toggle(LocalPlayer player) {
@@ -73,7 +85,7 @@ public final class ShuffleMode {
         int pickedSlot = -1;
         int blockSlotCount = 0;
         for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
-            if (inventory.getItem(slot).getItem() instanceof BlockItem && random.nextInt(++blockSlotCount) == 0) {
+            if (isShuffleCandidate(inventory.getItem(slot)) && random.nextInt(++blockSlotCount) == 0) {
                 pickedSlot = slot;
             }
         }
