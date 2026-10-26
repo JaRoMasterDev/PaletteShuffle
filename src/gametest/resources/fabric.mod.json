@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "blockshuffle-gametest",
+  "version": "1.0.0",
+  "name": "BlockShuffle Game Tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "org.jarnerolf.blockshuffle.gametest.ShuffleModeClientGameTest"
+    ]
+  },
+  "depends": {
+    "blockshuffle": "*"
+  }
+}
