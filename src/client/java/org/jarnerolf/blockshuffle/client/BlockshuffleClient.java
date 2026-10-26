@@ -16,11 +16,17 @@ public class BlockshuffleClient implements ClientModInitializer {
             KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
 
     private static KeyMapping toggleKey;
+    static KeyMapping settingsKey;
 
     @Override
     public void onInitializeClient() {
+        ShuffleConfig.load();
+        SlotChanceHud.register();
+
         toggleKey = KeyMappingHelper.registerKeyMapping(
                 new KeyMapping("key.blockshuffle.toggle", InputConstants.KEY_K, CATEGORY));
+        settingsKey = KeyMappingHelper.registerKeyMapping(
+                new KeyMapping("key.blockshuffle.settings", InputConstants.KEY_J, CATEGORY));
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> ShuffleMode.reset());
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ShuffleMode.reset());
@@ -31,6 +37,9 @@ public class BlockshuffleClient implements ClientModInitializer {
             }
             while (toggleKey.consumeClick()) {
                 ShuffleMode.toggle(client.player);
+            }
+            while (settingsKey.consumeClick()) {
+                client.gui.setScreen(new ShuffleSettingsScreen());
             }
             ShuffleMode.applyPendingShuffle(client.player);
         });

@@ -39,7 +39,7 @@ public abstract class HudMixin {
         int top = graphics.guiHeight() - 22 + 3;
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
-            if (ShuffleMode.isShuffleCandidate(inventory.getItem(slot))) {
+            if (ShuffleMode.slotWeight(slot, inventory.getItem(slot)) > 0) {
                 int x = left + slot * 20;
                 graphics.fill(x, top, x + 16, top + 16, HIGHLIGHT_COLOR);
             }

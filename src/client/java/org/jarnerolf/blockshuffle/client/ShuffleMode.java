@@ -25,10 +25,19 @@ public final class ShuffleMode {
     }
 
     /**
-     * Whether the shuffle can pick a hotbar slot holding this stack.
+     * The weight with which the shuffle picks a hotbar slot holding this stack; 0 if it never does.
      */
-    public static boolean isShuffleCandidate(ItemStack stack) {
-        return stack.getItem() instanceof BlockItem;
+    public static int slotWeight(int slot, ItemStack stack) {
+        return stack.getItem() instanceof BlockItem ? ShuffleConfig.get().effectiveWeight(slot) : 0;
+    }
+
+    /** {@link #slotWeight} of every hotbar slot. */
+    public static int[] slotWeights(Inventory inventory) {
+        int[] weights = new int[Inventory.getSelectionSize()];
+        for (int slot = 0; slot < weights.length; slot++) {
+            weights[slot] = slotWeight(slot, inventory.getItem(slot));
+        }
+        return weights;
     }
 
     public static void toggle(LocalPlayer player) {
@@ -74,19 +83,23 @@ public final class ShuffleMode {
     }
 
     /**
-     * Selects a random hotbar slot holding a placeable block, each such slot being equally likely
-     * (including the current one). Returns false if the hotbar contains no blocks.
+     * Selects a random hotbar slot with probability proportional to its weight (the current slot
+     * included). Returns false if no slot can be picked.
      */
     private static boolean selectRandomBlock(LocalPlayer player) {
         Inventory inventory = player.getInventory();
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        // Reservoir sampling: the n-th block slot found replaces the pick with probability 1/n.
+        // Weighted reservoir sampling: a slot replaces the pick with probability weight / total weight so far.
         int pickedSlot = -1;
-        int blockSlotCount = 0;
+        int totalWeight = 0;
         for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
-            if (isShuffleCandidate(inventory.getItem(slot)) && random.nextInt(++blockSlotCount) == 0) {
-                pickedSlot = slot;
+            int weight = slotWeight(slot, inventory.getItem(slot));
+            if (weight > 0) {
+                totalWeight += weight;
+                if (random.nextInt(totalWeight) < weight) {
+                    pickedSlot = slot;
+                }
             }
         }
 

@@ -1,7 +1,21 @@
 {
   "key.category.blockshuffle.main": "BlockShuffle",
   "key.blockshuffle.toggle": "Toggle Shuffle Mode",
+  "key.blockshuffle.settings": "Open Shuffle Settings",
   "message.blockshuffle.enabled": "Block shuffle enabled",
-  "message.blockshuffle.enabled_no_blocks": "Block shuffle enabled (no blocks in hotbar)",
-  "message.blockshuffle.disabled": "Block shuffle disabled"
+  "message.blockshuffle.enabled_no_blocks": "Block shuffle enabled (no blocks to shuffle in hotbar)",
+  "message.blockshuffle.disabled": "Block shuffle disabled",
+  "screen.blockshuffle.settings.title": "Block Shuffle Settings",
+  "screen.blockshuffle.settings.mode": "Mode",
+  "screen.blockshuffle.settings.mode.automatic": "Automatic",
+  "screen.blockshuffle.settings.mode.automatic.tooltip": "Every hotbar slot holding a block is picked equally often.",
+  "screen.blockshuffle.settings.mode.manual": "Manual",
+  "screen.blockshuffle.settings.mode.manual.tooltip": "Only checked slots are picked, each in proportion to its weight.",
+  "screen.blockshuffle.settings.slot": "Slot",
+  "screen.blockshuffle.settings.use": "Use",
+  "screen.blockshuffle.settings.weight": "Weight",
+  "screen.blockshuffle.settings.weight.narration": "Weight of slot %s",
+  "screen.blockshuffle.settings.chance": "Chance",
+  "screen.blockshuffle.settings.hint.automatic": "Every slot holding a block is equally likely.",
+  "screen.blockshuffle.settings.hint.manual": "Checked slots are picked in proportion to their weight."
 }
