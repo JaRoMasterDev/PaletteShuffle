@@ -6,6 +6,7 @@
   "environment": "client",
   "entrypoints": {
     "fabric-client-gametest": [
+      "org.jarnerolf.blockshuffle.gametest.ModMenuClientGameTest",
       "org.jarnerolf.blockshuffle.gametest.ShuffleModeClientGameTest"
     ]
   },

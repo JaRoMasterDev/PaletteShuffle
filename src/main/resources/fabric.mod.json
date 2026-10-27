@@ -22,6 +22,9 @@
     ],
     "main": [
       "org.jarnerolf.blockshuffle.Blockshuffle"
+    ],
+    "modmenu": [
+      "org.jarnerolf.blockshuffle.client.ModMenuIntegration"
     ]
   },
   "mixins": [

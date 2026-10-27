@@ -39,7 +39,7 @@ public class BlockshuffleClient implements ClientModInitializer {
                 ShuffleMode.toggle(client.player);
             }
             while (settingsKey.consumeClick()) {
-                client.gui.setScreen(new ShuffleSettingsScreen());
+                client.gui.setScreen(new ShuffleSettingsScreen(null));
             }
             ShuffleMode.applyPendingShuffle(client.player);
         });

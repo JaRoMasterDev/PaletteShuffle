@@ -38,13 +38,16 @@ public class ShuffleSettingsScreen extends Screen {
     private static final int HIGHLIGHT_COLOR = 0x6655FF55;
     private static final DecimalFormat PERCENT = new DecimalFormat("0.#", DecimalFormatSymbols.getInstance(Locale.ROOT));
 
+    private final Screen parent;
     private final ShuffleConfig config = ShuffleConfig.get();
     private final List<Checkbox> useBoxes = new ArrayList<>();
     private final List<EditBox> weightBoxes = new ArrayList<>();
     private int columnsLeft;
 
-    public ShuffleSettingsScreen() {
+    /** @param parent the screen to return to, e.g. Mod Menu's, or {@code null} to return to the game */
+    public ShuffleSettingsScreen(Screen parent) {
         super(Component.translatable("screen.blockshuffle.settings.title"));
+        this.parent = parent;
     }
 
     @Override
@@ -126,6 +129,11 @@ public class ShuffleSettingsScreen extends Screen {
     }
 
     @Override
+    public void onClose() {
+        minecraft.gui.setScreen(parent);
+    }
+
+    @Override
     public void removed() {
         config.save();
     }
@@ -143,24 +151,34 @@ public class ShuffleSettingsScreen extends Screen {
             graphics.text(font, Component.translatable("screen.blockshuffle.settings.use"), labelX, USE_Y + 4, TEXT_COLOR);
             graphics.text(font, Component.translatable("screen.blockshuffle.settings.weight"), labelX, WEIGHT_Y + 4, TEXT_COLOR);
         }
-        graphics.text(font, Component.translatable("screen.blockshuffle.settings.chance"), labelX, chanceY, TEXT_COLOR);
 
-        // Chances follow the current hotbar: empty slots and non-blocks are never picked.
-        Inventory inventory = minecraft.player.getInventory();
-        int[] weights = ShuffleMode.slotWeights(inventory);
-        int totalWeight = Arrays.stream(weights).sum();
-
-        for (int slot = 0; slot < weights.length; slot++) {
-            int centerX = columnCenter(slot);
-            ItemStack stack = inventory.getItem(slot);
-            if (weights[slot] > 0) {
-                graphics.fill(centerX - 9, ICON_Y - 1, centerX + 9, ICON_Y + 17, HIGHLIGHT_COLOR);
+        if (minecraft.player == null) {
+            // Opened from Mod Menu outside a world: there is no hotbar to show the blocks and chances of.
+            for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
+                graphics.centeredText(font, String.valueOf(slot + 1), columnCenter(slot), ICON_Y + 4, TEXT_COLOR);
             }
-            graphics.item(stack, centerX - 8, ICON_Y);
-            graphics.itemDecorations(font, stack, centerX - 8, ICON_Y);
+            graphics.centeredText(font, Component.translatable("screen.blockshuffle.settings.chance.no_world"),
+                    width / 2, chanceY, MUTED_TEXT_COLOR);
+        } else {
+            graphics.text(font, Component.translatable("screen.blockshuffle.settings.chance"), labelX, chanceY, TEXT_COLOR);
 
-            String chance = weights[slot] > 0 ? PERCENT.format(100.0 * weights[slot] / totalWeight) + "%" : "-";
-            graphics.centeredText(font, chance, centerX, chanceY, weights[slot] > 0 ? TEXT_COLOR : MUTED_TEXT_COLOR);
+            // Chances follow the current hotbar: empty slots and non-blocks are never picked.
+            Inventory inventory = minecraft.player.getInventory();
+            int[] weights = ShuffleMode.slotWeights(inventory);
+            int totalWeight = Arrays.stream(weights).sum();
+
+            for (int slot = 0; slot < weights.length; slot++) {
+                int centerX = columnCenter(slot);
+                ItemStack stack = inventory.getItem(slot);
+                if (weights[slot] > 0) {
+                    graphics.fill(centerX - 9, ICON_Y - 1, centerX + 9, ICON_Y + 17, HIGHLIGHT_COLOR);
+                }
+                graphics.item(stack, centerX - 8, ICON_Y);
+                graphics.itemDecorations(font, stack, centerX - 8, ICON_Y);
+
+                String chance = weights[slot] > 0 ? PERCENT.format(100.0 * weights[slot] / totalWeight) + "%" : "-";
+                graphics.centeredText(font, chance, centerX, chanceY, weights[slot] > 0 ? TEXT_COLOR : MUTED_TEXT_COLOR);
+            }
         }
 
         graphics.centeredText(font, Component.translatable(config.isManual()

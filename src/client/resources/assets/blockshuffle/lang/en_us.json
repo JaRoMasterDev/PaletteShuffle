@@ -16,6 +16,7 @@
   "screen.blockshuffle.settings.weight": "Weight",
   "screen.blockshuffle.settings.weight.narration": "Weight of slot %s",
   "screen.blockshuffle.settings.chance": "Chance",
+  "screen.blockshuffle.settings.chance.no_world": "Join a world to see each slot's chance.",
   "screen.blockshuffle.settings.hint.automatic": "Every slot holding a block is equally likely.",
   "screen.blockshuffle.settings.hint.manual": "Checked slots are picked in proportion to their weight."
 }
