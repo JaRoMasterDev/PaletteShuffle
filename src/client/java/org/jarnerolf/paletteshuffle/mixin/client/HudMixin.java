@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.mixin.client;
+package org.jarnerolf.paletteshuffle.mixin.client;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.Hud;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Inventory;
-import org.jarnerolf.blockshuffle.client.ShuffleMode;
+import org.jarnerolf.paletteshuffle.client.ShuffleMode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +28,7 @@ public abstract class HudMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
                     ordinal = 0,
                     shift = At.Shift.AFTER))
-    private void blockshuffle$highlightShuffleSlots(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    private void paletteshuffle$highlightShuffleSlots(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (!ShuffleMode.isEnabled() || player == null) {
             return;

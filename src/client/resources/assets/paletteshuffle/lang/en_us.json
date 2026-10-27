@@ -1,0 +1,22 @@
+{
+  "key.category.paletteshuffle.main": "Palette Shuffle",
+  "key.paletteshuffle.toggle": "Toggle Shuffle Mode",
+  "key.paletteshuffle.settings": "Open Shuffle Settings",
+  "message.paletteshuffle.enabled": "Palette shuffle enabled",
+  "message.paletteshuffle.enabled_no_blocks": "Palette shuffle enabled (no blocks to shuffle in hotbar)",
+  "message.paletteshuffle.disabled": "Palette shuffle disabled",
+  "screen.paletteshuffle.settings.title": "Palette Shuffle Settings",
+  "screen.paletteshuffle.settings.mode": "Mode",
+  "screen.paletteshuffle.settings.mode.automatic": "Automatic",
+  "screen.paletteshuffle.settings.mode.automatic.tooltip": "Every hotbar slot holding a block is picked equally often.",
+  "screen.paletteshuffle.settings.mode.manual": "Manual",
+  "screen.paletteshuffle.settings.mode.manual.tooltip": "Only checked slots are picked, each in proportion to its weight.",
+  "screen.paletteshuffle.settings.slot": "Slot",
+  "screen.paletteshuffle.settings.use": "Use",
+  "screen.paletteshuffle.settings.weight": "Weight",
+  "screen.paletteshuffle.settings.weight.narration": "Weight of slot %s",
+  "screen.paletteshuffle.settings.chance": "Chance",
+  "screen.paletteshuffle.settings.chance.no_world": "Join a world to see each slot's chance.",
+  "screen.paletteshuffle.settings.hint.automatic": "Every slot holding a block is equally likely.",
+  "screen.paletteshuffle.settings.hint.manual": "Checked slots are picked in proportion to their weight."
+}

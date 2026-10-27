@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.jarnerolf.blockshuffle.mixin.client",
+  "package": "org.jarnerolf.paletteshuffle.mixin.client",
   "compatibilityLevel": "JAVA_25",
   "client": [
     "BlockItemMixin",

@@ -1,9 +1,9 @@
-package org.jarnerolf.blockshuffle.client;
+package org.jarnerolf.paletteshuffle.client;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
-/** Adds a Configure button for BlockShuffle to Mod Menu. Only Mod Menu loads this class. */
+/** Adds a Configure button for Palette Shuffle to Mod Menu. Only Mod Menu loads this class. */
 public class ModMenuIntegration implements ModMenuApi {
 
     @Override

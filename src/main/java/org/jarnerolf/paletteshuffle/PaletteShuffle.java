@@ -1,8 +1,8 @@
-package org.jarnerolf.blockshuffle;
+package org.jarnerolf.paletteshuffle;
 
 import net.fabricmc.api.ModInitializer;
 
-public class Blockshuffle implements ModInitializer {
+public class PaletteShuffle implements ModInitializer {
 
     @Override
     public void onInitialize() {

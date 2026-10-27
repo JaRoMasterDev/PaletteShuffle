@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.client;
+package org.jarnerolf.paletteshuffle.client;
 
 import java.util.Arrays;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -25,7 +25,7 @@ public final class SlotChanceHud {
     public static void register() {
         // Last, so the labels stay readable on top of the experience bar. Attaching to a vanilla bar
         // instead would hide them whenever that bar is hidden, e.g. the experience bar in creative.
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(BlockshuffleClient.MOD_ID, "slot_chances"),
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(PaletteShuffleClient.MOD_ID, "slot_chances"),
                 SlotChanceHud::extract);
     }
 

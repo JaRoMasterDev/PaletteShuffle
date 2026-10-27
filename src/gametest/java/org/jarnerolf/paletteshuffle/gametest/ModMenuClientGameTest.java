@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.gametest;
+package org.jarnerolf.paletteshuffle.gametest;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import java.lang.reflect.Field;
@@ -14,7 +14,7 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import org.jarnerolf.blockshuffle.client.ShuffleSettingsScreen;
+import org.jarnerolf.paletteshuffle.client.ShuffleSettingsScreen;
 
 /**
  * Opens the settings through Mod Menu like a player would, from the title screen and from the pause
@@ -70,13 +70,13 @@ public class ModMenuClientGameTest implements FabricClientGameTest {
         }
     }
 
-    /** Opens Mod Menu from the title or pause screen, selects BlockShuffle and clicks Configure. */
+    /** Opens Mod Menu from the title or pause screen, selects Palette Shuffle and clicks Configure. */
     private void openSettingsFromModMenu() {
         clickWidget(screen -> widget(screen, widget -> widget.getMessage().getString().startsWith("Mods")));
         waitForModsScreen();
-        context.getInput().typeChars("BlockShuffle");
+        context.getInput().typeChars("Palette Shuffle");
         context.waitTick();
-        // The first match is BlockShuffle itself, ahead of "BlockShuffle Game Tests".
+        // The first match is Palette Shuffle itself, ahead of "Palette Shuffle Game Tests".
         clickAt(screen -> {
             AbstractWidget modList = widget(screen, widget -> widget.getClass().getSimpleName().equals("ModListWidget"));
             return new double[] {modList.getX() + modList.getWidth() / 2.0, modList.getY() + 20};
@@ -85,7 +85,7 @@ public class ModMenuClientGameTest implements FabricClientGameTest {
 
         boolean configurable = context.computeOnClient(mc -> configureButton(mc.gui.screen()).active);
         if (!configurable) {
-            throw new AssertionError("Mod Menu has no Configure button for BlockShuffle");
+            throw new AssertionError("Mod Menu has no Configure button for Palette Shuffle");
         }
         clickWidget(ModMenuClientGameTest::configureButton);
         context.waitForScreen(ShuffleSettingsScreen.class);

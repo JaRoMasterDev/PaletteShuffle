@@ -1,7 +1,7 @@
-package org.jarnerolf.blockshuffle.mixin.client;
+package org.jarnerolf.paletteshuffle.mixin.client;
 
 import net.minecraft.client.Minecraft;
-import org.jarnerolf.blockshuffle.client.ShuffleMode;
+import org.jarnerolf.paletteshuffle.client.ShuffleMode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,7 +12,7 @@ public abstract class MinecraftMixin {
 
     // Several right-clicks can be processed within one tick, before the end-of-tick shuffle runs.
     @Inject(method = "startUseItem", at = @At("HEAD"))
-    private void blockshuffle$beforeUseItem(CallbackInfo ci) {
+    private void paletteshuffle$beforeUseItem(CallbackInfo ci) {
         ShuffleMode.applyPendingShuffle(((Minecraft) (Object) this).player);
     }
 }

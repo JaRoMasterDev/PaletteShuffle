@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.gametest;
+package org.jarnerolf.paletteshuffle.gametest;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -36,7 +36,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jarnerolf.blockshuffle.client.ShuffleSettingsScreen;
+import org.jarnerolf.paletteshuffle.client.ShuffleSettingsScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ShuffleModeClientGameTest implements FabricClientGameTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BlockShuffleTest");
+    private static final Logger LOGGER = LoggerFactory.getLogger("PaletteShuffleTest");
     private static final String[] HOTBAR_BLOCKS = {"stone", "glass", "oak_planks", "gold_block"};
 
     private static volatile Consumer<ServerLevel> spamRecorder;
@@ -85,7 +85,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             context.getInput().pressKey(InputConstants.KEY_K);
             context.waitTicks(2);
             int slotAfterEnable = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
-            LOGGER.info("[BlockShuffleTest] slot after enabling: {}", slotAfterEnable);
+            LOGGER.info("[PaletteShuffleTest] slot after enabling: {}", slotAfterEnable);
             check(slotAfterEnable >= 0 && slotAfterEnable < HOTBAR_BLOCKS.length,
                     "enabling did not select a block slot, selected " + slotAfterEnable);
             checkHighlight("automatic", Set.of(0, 1, 2, 3), Set.of());
@@ -104,7 +104,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             context.waitTicks(2);
             List<Placement> disabled = clickPlacements(10);
             long switches = disabled.stream().filter(p -> p.slotBefore != p.slotAfter).count();
-            LOGGER.info("[BlockShuffleTest] disabled: {} slot switches in {} placements", switches, disabled.size());
+            LOGGER.info("[PaletteShuffleTest] disabled: {} slot switches in {} placements", switches, disabled.size());
             check(switches == 0, "slot still switched while shuffle mode was disabled");
 
             testManualMode();
@@ -137,11 +137,11 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
         JsonObject saved;
         try {
             saved = JsonParser.parseString(Files.readString(
-                    FabricLoader.getInstance().getConfigDir().resolve("blockshuffle.json"))).getAsJsonObject();
+                    FabricLoader.getInstance().getConfigDir().resolve("paletteshuffle.json"))).getAsJsonObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        LOGGER.info("[BlockShuffleTest] saved settings: {}", saved);
+        LOGGER.info("[PaletteShuffleTest] saved settings: {}", saved);
         check(saved.get("manual").getAsBoolean(), "manual mode was not saved");
         check(saved.get("weights").toString().startsWith("[3,1,1,2,"), "weights were not saved: " + saved);
         check(saved.get("selected").toString().startsWith("[true,true,false,true,"), "slots were not saved: " + saved);
@@ -263,7 +263,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
         spamRecorder = null;
 
         synchronized (placed) {
-            LOGGER.info("[BlockShuffleTest] spam: {} clicks, {} blocks placed", bursts * clicksPerTick, placed.size());
+            LOGGER.info("[PaletteShuffleTest] spam: {} clicks, {} blocks placed", bursts * clicksPerTick, placed.size());
             return placed.stream().map(block -> new Placement(block, block, 0, 0)).toList();
         }
     }
@@ -342,7 +342,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
                 check(shouldHighlight ? greenGain > 30 : Math.abs(greenGain) < 10, "slot " + slot
                         + (shouldHighlight ? " not highlighted" : " highlighted") + ", green gain " + greenGain);
             }
-            LOGGER.info("[BlockShuffleTest] {} highlight green gain per slot: {}", name, gains);
+            LOGGER.info("[PaletteShuffleTest] {} highlight green gain per slot: {}", name, gains);
 
             // White label text in the 20x9 area above each slot, compared with the screenshot without it.
             StringBuilder labelPixels = new StringBuilder();
@@ -363,7 +363,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
                 check(shouldLabel ? newWhitePixels > 15 : newWhitePixels == 0, "slot " + slot
                         + (shouldLabel ? " has no chance label" : " has a chance label") + ", " + newWhitePixels + " white pixels");
             }
-            LOGGER.info("[BlockShuffleTest] {} chance label pixels per slot: {}", name, labelPixels);
+            LOGGER.info("[PaletteShuffleTest] {} chance label pixels per slot: {}", name, labelPixels);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -426,13 +426,13 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             maxRun++;
         }
 
-        LOGGER.info("[BlockShuffleTest] === {} ({} placements) ===", name, n);
-        LOGGER.info("[BlockShuffleTest] counts: {} (expected {})", counts, expectedCounts.toString().trim());
-        LOGGER.info("[BlockShuffleTest] same block as previous: {} ({}%, expected ~{}%)", sameAsPrevious,
+        LOGGER.info("[PaletteShuffleTest] === {} ({} placements) ===", name, n);
+        LOGGER.info("[PaletteShuffleTest] counts: {} (expected {})", counts, expectedCounts.toString().trim());
+        LOGGER.info("[PaletteShuffleTest] same block as previous: {} ({}%, expected ~{}%)", sameAsPrevious,
                 Math.round(100.0 * sameAsPrevious / (n - 1)), Math.round(100 * expectedRepeats));
-        LOGGER.info("[BlockShuffleTest] longest run of one block: {}", longestRun);
-        LOGGER.info("[BlockShuffleTest] placed != held: {}", mismatches);
-        LOGGER.info("[BlockShuffleTest] sequence (hotbar slot of each placed block): {}", sequence);
+        LOGGER.info("[PaletteShuffleTest] longest run of one block: {}", longestRun);
+        LOGGER.info("[PaletteShuffleTest] placed != held: {}", mismatches);
+        LOGGER.info("[PaletteShuffleTest] sequence (hotbar slot of each placed block): {}", sequence);
 
         check(counts.size() == HOTBAR_BLOCKS.length, name + ": unexpected block placed " + counts);
         for (int i = 0; i < HOTBAR_BLOCKS.length; i++) {

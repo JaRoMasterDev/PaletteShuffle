@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "blockshuffle",
+  "id": "paletteshuffle",
   "version": "${version}",
-  "name": "BlockShuffle",
+  "name": "Palette Shuffle",
   "description": "Places your blocks in a random mix. Press K to toggle shuffle mode: after every block you place, your hotbar switches to a random block. Press J to choose which hotbar slots take part and how likely each one is.",
   "authors": [
     "Jarne Rolf"
@@ -11,26 +11,26 @@
     "homepage": "https://jarne-rolf.de"
   },
   "license": "All-Rights-Reserved",
-  "icon": "assets/blockshuffle/icon.png",
+  "icon": "assets/paletteshuffle/icon.png",
   "environment": "client",
   "entrypoints": {
     "fabric-datagen": [
-      "org.jarnerolf.blockshuffle.client.BlockshuffleDataGenerator"
+      "org.jarnerolf.paletteshuffle.client.PaletteShuffleDataGenerator"
     ],
     "client": [
-      "org.jarnerolf.blockshuffle.client.BlockshuffleClient"
+      "org.jarnerolf.paletteshuffle.client.PaletteShuffleClient"
     ],
     "main": [
-      "org.jarnerolf.blockshuffle.Blockshuffle"
+      "org.jarnerolf.paletteshuffle.PaletteShuffle"
     ],
     "modmenu": [
-      "org.jarnerolf.blockshuffle.client.ModMenuIntegration"
+      "org.jarnerolf.paletteshuffle.client.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "blockshuffle.mixins.json",
+    "paletteshuffle.mixins.json",
     {
-      "config": "blockshuffle.client.mixins.json",
+      "config": "paletteshuffle.client.mixins.json",
       "environment": "client"
     }
   ],

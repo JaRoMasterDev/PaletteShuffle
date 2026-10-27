@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.client;
+package org.jarnerolf.paletteshuffle.client;
 
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.ChatFormatting;
@@ -45,13 +45,13 @@ public final class ShuffleMode {
         shufflePending = false;
 
         if (!enabled) {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.disabled")
+            player.sendOverlayMessage(Component.translatable("message.paletteshuffle.disabled")
                     .withStyle(ChatFormatting.RED));
         } else if (selectRandomBlock(player)) {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled")
+            player.sendOverlayMessage(Component.translatable("message.paletteshuffle.enabled")
                     .withStyle(ChatFormatting.GREEN));
         } else {
-            player.sendOverlayMessage(Component.translatable("message.blockshuffle.enabled_no_blocks")
+            player.sendOverlayMessage(Component.translatable("message.paletteshuffle.enabled_no_blocks")
                     .withStyle(ChatFormatting.GREEN));
         }
     }

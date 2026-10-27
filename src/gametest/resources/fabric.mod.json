@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "blockshuffle-gametest",
+  "id": "paletteshuffle-gametest",
   "version": "1.0.0",
-  "name": "BlockShuffle Game Tests",
+  "name": "Palette Shuffle Game Tests",
   "environment": "client",
   "entrypoints": {
     "fabric-client-gametest": [
-      "org.jarnerolf.blockshuffle.gametest.ModMenuClientGameTest",
-      "org.jarnerolf.blockshuffle.gametest.ShuffleModeClientGameTest"
+      "org.jarnerolf.paletteshuffle.gametest.ModMenuClientGameTest",
+      "org.jarnerolf.paletteshuffle.gametest.ShuffleModeClientGameTest"
     ]
   },
   "depends": {
-    "blockshuffle": "*"
+    "paletteshuffle": "*"
   }
 }

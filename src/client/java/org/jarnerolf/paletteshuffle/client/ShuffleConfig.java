@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.client;
+package org.jarnerolf.paletteshuffle.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,15 +16,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Which hotbar slots the shuffle may pick and how likely each one is. Persisted in
- * {@code config/blockshuffle.json}.
+ * {@code config/paletteshuffle.json}.
  */
 public final class ShuffleConfig {
 
     public static final int MAX_WEIGHT = 999;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BlockShuffle");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Palette Shuffle");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("blockshuffle.json");
+    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("paletteshuffle.json");
 
     private static ShuffleConfig instance = new ShuffleConfig();
 

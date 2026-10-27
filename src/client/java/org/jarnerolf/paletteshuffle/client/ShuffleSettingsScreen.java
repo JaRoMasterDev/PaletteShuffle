@@ -1,4 +1,4 @@
-package org.jarnerolf.blockshuffle.client;
+package org.jarnerolf.paletteshuffle.client;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -46,7 +46,7 @@ public class ShuffleSettingsScreen extends Screen {
 
     /** @param parent the screen to return to, e.g. Mod Menu's, or {@code null} to return to the game */
     public ShuffleSettingsScreen(Screen parent) {
-        super(Component.translatable("screen.blockshuffle.settings.title"));
+        super(Component.translatable("screen.paletteshuffle.settings.title"));
         this.parent = parent;
     }
 
@@ -57,13 +57,13 @@ public class ShuffleSettingsScreen extends Screen {
         columnsLeft = (width - LABEL_WIDTH - Inventory.getSelectionSize() * COLUMN_WIDTH) / 2 + LABEL_WIDTH;
 
         addRenderableWidget(CycleButton.booleanBuilder(
-                        Component.translatable("screen.blockshuffle.settings.mode.manual"),
-                        Component.translatable("screen.blockshuffle.settings.mode.automatic"),
+                        Component.translatable("screen.paletteshuffle.settings.mode.manual"),
+                        Component.translatable("screen.paletteshuffle.settings.mode.automatic"),
                         config.isManual())
                 .withTooltip(manual -> Tooltip.create(Component.translatable(manual
-                        ? "screen.blockshuffle.settings.mode.manual.tooltip"
-                        : "screen.blockshuffle.settings.mode.automatic.tooltip")))
-                .create(width / 2 - 100, MODE_Y, 200, 20, Component.translatable("screen.blockshuffle.settings.mode"),
+                        ? "screen.paletteshuffle.settings.mode.manual.tooltip"
+                        : "screen.paletteshuffle.settings.mode.automatic.tooltip")))
+                .create(width / 2 - 100, MODE_Y, 200, 20, Component.translatable("screen.paletteshuffle.settings.mode"),
                         (button, manual) -> {
                             config.setManual(manual);
                             updateWidgetStates();
@@ -84,7 +84,7 @@ public class ShuffleSettingsScreen extends Screen {
                     .build()));
 
             EditBox weightBox = new EditBox(font, centerX - 15, WEIGHT_Y, 30, 16,
-                    Component.translatable("screen.blockshuffle.settings.weight.narration", slot + 1));
+                    Component.translatable("screen.paletteshuffle.settings.weight.narration", slot + 1));
             weightBox.setMaxLength(String.valueOf(ShuffleConfig.MAX_WEIGHT).length());
             weightBox.setCentered(true);
             weightBox.setValue(String.valueOf(config.getWeight(slot)));
@@ -121,7 +121,7 @@ public class ShuffleSettingsScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (BlockshuffleClient.settingsKey.matches(event)) {
+        if (PaletteShuffleClient.settingsKey.matches(event)) {
             onClose();
             return true;
         }
@@ -146,10 +146,10 @@ public class ShuffleSettingsScreen extends Screen {
         // Without the manual-only rows, the chances move up right below the slots.
         int chanceY = config.isManual() ? CHANCE_Y : USE_Y + 4;
         int labelX = columnsLeft - LABEL_WIDTH;
-        graphics.text(font, Component.translatable("screen.blockshuffle.settings.slot"), labelX, ICON_Y + 4, TEXT_COLOR);
+        graphics.text(font, Component.translatable("screen.paletteshuffle.settings.slot"), labelX, ICON_Y + 4, TEXT_COLOR);
         if (config.isManual()) {
-            graphics.text(font, Component.translatable("screen.blockshuffle.settings.use"), labelX, USE_Y + 4, TEXT_COLOR);
-            graphics.text(font, Component.translatable("screen.blockshuffle.settings.weight"), labelX, WEIGHT_Y + 4, TEXT_COLOR);
+            graphics.text(font, Component.translatable("screen.paletteshuffle.settings.use"), labelX, USE_Y + 4, TEXT_COLOR);
+            graphics.text(font, Component.translatable("screen.paletteshuffle.settings.weight"), labelX, WEIGHT_Y + 4, TEXT_COLOR);
         }
 
         if (minecraft.player == null) {
@@ -157,10 +157,10 @@ public class ShuffleSettingsScreen extends Screen {
             for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
                 graphics.centeredText(font, String.valueOf(slot + 1), columnCenter(slot), ICON_Y + 4, TEXT_COLOR);
             }
-            graphics.centeredText(font, Component.translatable("screen.blockshuffle.settings.chance.no_world"),
+            graphics.centeredText(font, Component.translatable("screen.paletteshuffle.settings.chance.no_world"),
                     width / 2, chanceY, MUTED_TEXT_COLOR);
         } else {
-            graphics.text(font, Component.translatable("screen.blockshuffle.settings.chance"), labelX, chanceY, TEXT_COLOR);
+            graphics.text(font, Component.translatable("screen.paletteshuffle.settings.chance"), labelX, chanceY, TEXT_COLOR);
 
             // Chances follow the current hotbar: empty slots and non-blocks are never picked.
             Inventory inventory = minecraft.player.getInventory();
@@ -182,8 +182,8 @@ public class ShuffleSettingsScreen extends Screen {
         }
 
         graphics.centeredText(font, Component.translatable(config.isManual()
-                        ? "screen.blockshuffle.settings.hint.manual"
-                        : "screen.blockshuffle.settings.hint.automatic"),
+                        ? "screen.paletteshuffle.settings.hint.manual"
+                        : "screen.paletteshuffle.settings.hint.automatic"),
                 width / 2, chanceY + HINT_OFFSET, MUTED_TEXT_COLOR);
     }
 

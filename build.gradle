@@ -14,7 +14,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "blockshuffle" {
+        "paletteshuffle" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
@@ -27,7 +27,7 @@ fabricApi {
     }
     configureTests {
         createSourceSet = true
-        modId = "blockshuffle-gametest"
+        modId = "paletteshuffle-gametest"
         enableGameTests = false
         enableClientGameTests = true
     }
