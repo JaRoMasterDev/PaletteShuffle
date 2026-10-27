@@ -11,11 +11,38 @@ build
 out/
 .idea
 *.iml
+*.ipr
+*.iws
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
+# Eclipse and VS Code
+bin/
+.classpath
+.project
+.settings/
+.vscode/
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+# JVM heap dumps and flight recordings
+*.hprof
+*.jfr
+
+# Minecraft logs and crash reports outside the run directory
+*.log
+logs/
+crash-reports/
+
+# Fabric Loom
+remappedSrc/
+
+# Local settings and signing keys
+.env
+local.properties
+*.jks
+*.keystore
+*.p12
 
 # Common working directory
 run
