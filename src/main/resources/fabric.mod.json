@@ -8,7 +8,9 @@
     "Jarne Rolf"
   ],
   "contact": {
-    "homepage": "https://jarne-rolf.de"
+    "homepage": "https://github.com/JaRoMasterDev/PaletteShuffle",
+    "sources": "https://github.com/JaRoMasterDev/PaletteShuffle",
+    "issues": "https://github.com/JaRoMasterDev/PaletteShuffle/issues"
   },
   "license": "All-Rights-Reserved",
   "icon": "assets/paletteshuffle/icon.png",

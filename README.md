@@ -8,7 +8,7 @@ A Fabric mod for Minecraft 26.3. It runs only on the client, so it works without
 
 ## Features
 
-- **Shuffle mode:** press **K** to turn it on or off. When you turn it on, and after every block you place, your hotbar switches to a random slot holding a block. Tools, other items and empty slots are skipped, and the same block can come up twice in a row.
+- **Shuffle mode:** press **K** to turn it on or off; a high or low note tells you which. When you turn it on, and after every block you place, your hotbar switches to a random slot holding a block. Tools, other items and empty slots are skipped, and the same block can come up twice in a row.
 - **Slot highlight:** while shuffle mode is on, the slots it can pick are highlighted in green.
 - **Chances per slot:** press **J** to open the settings.
   - **Automatic:** every slot holding a block is equally likely, so two slots of red wool and one of white wool place red twice as often.

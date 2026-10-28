@@ -2,8 +2,11 @@ package org.jarnerolf.paletteshuffle.client;
 
 import java.util.concurrent.ThreadLocalRandom;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +16,10 @@ import net.minecraft.world.item.ItemStack;
  * jumps to a random block after every block the player places.
  */
 public final class ShuffleMode {
+
+    /** Note block pling pitches for the toggle sound: high when turning on, low when turning off. */
+    public static final float ENABLE_PITCH = 1.5F;
+    public static final float DISABLE_PITCH = 0.8F;
 
     private static boolean enabled;
     private static boolean shufflePending;
@@ -54,6 +61,9 @@ public final class ShuffleMode {
             player.sendOverlayMessage(Component.translatable("message.paletteshuffle.enabled_no_blocks")
                     .withStyle(ChatFormatting.GREEN));
         }
+        // A UI sound: only this player hears it, at the UI volume.
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
+                SoundEvents.NOTE_BLOCK_PLING, enabled ? ENABLE_PITCH : DISABLE_PITCH));
     }
 
     /**

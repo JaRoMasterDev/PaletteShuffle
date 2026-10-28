@@ -28,14 +28,17 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.sounds.SoundEventListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jarnerolf.paletteshuffle.client.ShuffleMode;
 import org.jarnerolf.paletteshuffle.client.ShuffleSettingsScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +85,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             context.waitFor(mc -> !mc.player.getInventory().getItem(5).isEmpty());
             context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(8));
             context.waitTicks(2);
-            context.getInput().pressKey(InputConstants.KEY_K);
-            context.waitTicks(2);
+            checkToggleSound("enabling", ShuffleMode.ENABLE_PITCH);
             int slotAfterEnable = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
             LOGGER.info("[PaletteShuffleTest] slot after enabling: {}", slotAfterEnable);
             check(slotAfterEnable >= 0 && slotAfterEnable < HOTBAR_BLOCKS.length,
@@ -100,8 +102,7 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
             analyze("survival / single clicks", clickPlacements(120), true);
 
             // Disabling must stop the switching.
-            context.getInput().pressKey(InputConstants.KEY_K);
-            context.waitTicks(2);
+            checkToggleSound("disabling", ShuffleMode.DISABLE_PITCH);
             List<Placement> disabled = clickPlacements(10);
             long switches = disabled.stream().filter(p -> p.slotBefore != p.slotAfter).count();
             LOGGER.info("[PaletteShuffleTest] disabled: {} slot switches in {} placements", switches, disabled.size());
@@ -445,6 +446,27 @@ public class ShuffleModeClientGameTest implements FabricClientGameTest {
         check(sameAsPrevious < (n - 1) * (expectedRepeats + 0.15), name + ": too many repeats " + sameAsPrevious);
         check(longestRun <= maxRun, name + ": run of " + longestRun + " identical blocks");
         check(mismatches == 0, name + ": " + mismatches + " placements used a different block than held");
+    }
+
+    /**
+     * Presses the toggle key and checks that the client played exactly one note block pling,
+     * at the given pitch, as a UI sound.
+     */
+    private void checkToggleSound(String what, float expectedPitch) {
+        List<String> plings = Collections.synchronizedList(new ArrayList<>());
+        SoundEventListener listener = (sound, events, range) -> {
+            if (sound.getIdentifier().equals(SoundEvents.NOTE_BLOCK_PLING.value().location())) {
+                plings.add(sound.getSource() + " " + sound.getPitch());
+            }
+        };
+        context.runOnClient(mc -> mc.getSoundManager().addListener(listener));
+        context.getInput().pressKey(InputConstants.KEY_K);
+        context.waitTicks(2);
+        context.runOnClient(mc -> mc.getSoundManager().removeListener(listener));
+
+        LOGGER.info("[PaletteShuffleTest] {} played plings: {}", what, plings);
+        check(plings.equals(List.of("UI " + expectedPitch)), what + " played plings " + plings
+                + " instead of one UI pling at pitch " + expectedPitch);
     }
 
     private static void check(boolean condition, String message) {

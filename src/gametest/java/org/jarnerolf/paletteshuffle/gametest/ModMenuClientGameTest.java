@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -18,7 +19,7 @@ import org.jarnerolf.paletteshuffle.client.ShuffleSettingsScreen;
 
 /**
  * Opens the settings through Mod Menu like a player would, from the title screen and from the pause
- * menu, and checks that closing them returns to Mod Menu.
+ * menu, and checks that closing them returns to Mod Menu. Also checks Mod Menu's Website and Issues links.
  */
 public class ModMenuClientGameTest implements FabricClientGameTest {
 
@@ -42,6 +43,9 @@ public class ModMenuClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("gui.done");
         waitForModsScreen();
         context.takeScreenshot("modmenu_list");
+
+        checkLinkButton("websiteButton", "https://github.com/JaRoMasterDev/PaletteShuffle");
+        checkLinkButton("issuesButton", "https://github.com/JaRoMasterDev/PaletteShuffle/issues");
 
         // The settings key closes the screen like Done does.
         clickWidget(ModMenuClientGameTest::configureButton);
@@ -91,17 +95,45 @@ public class ModMenuClientGameTest implements FabricClientGameTest {
         context.waitForScreen(ShuffleSettingsScreen.class);
     }
 
+    /**
+     * Clicks one of Mod Menu's link buttons for the selected mod and checks the link it asks to open.
+     * The confirmation is cancelled, so no browser opens.
+     */
+    private void checkLinkButton(String buttonField, String expectedUrl) {
+        boolean active = context.computeOnClient(mc -> modsScreenButton(mc.gui.screen(), buttonField).active);
+        if (!active) {
+            throw new AssertionError("Mod Menu's " + buttonField + " is disabled for Palette Shuffle");
+        }
+        clickWidget(screen -> modsScreenButton(screen, buttonField));
+        context.waitForScreen(ConfirmLinkScreen.class);
+        String url = context.computeOnClient(mc -> field(mc.gui.screen(), ConfirmLinkScreen.class, "url").toString());
+        if (!url.equals(expectedUrl)) {
+            throw new AssertionError("Mod Menu's " + buttonField + " opens " + url + " instead of " + expectedUrl);
+        }
+        context.takeScreenshot("modmenu_" + buttonField);
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        waitForModsScreen();
+    }
+
     private void waitForModsScreen() {
         context.waitFor(mc -> mc.gui.screen() != null && mc.gui.screen().getClass().getName().equals(MODS_SCREEN));
     }
 
     private static AbstractWidget configureButton(Screen modsScreen) {
+        return modsScreenButton(modsScreen, "configureButton");
+    }
+
+    private static AbstractWidget modsScreenButton(Screen modsScreen, String name) {
+        return (AbstractWidget) field(modsScreen, modsScreen.getClass(), name);
+    }
+
+    private static Object field(Object owner, Class<?> declaringClass, String name) {
         try {
-            Field field = modsScreen.getClass().getDeclaredField("configureButton");
+            Field field = declaringClass.getDeclaredField(name);
             field.setAccessible(true);
-            return (AbstractWidget) field.get(modsScreen);
+            return field.get(owner);
         } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Mod Menu's screen has no configure button", e);
+            throw new IllegalStateException(declaringClass.getSimpleName() + " has no field " + name, e);
         }
     }
 
