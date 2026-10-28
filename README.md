@@ -39,6 +39,6 @@ The mod jar is written to `build/libs/PaletteShuffle-1.0.jar`. `./gradlew runCli
 
 Copyright © 2026 Jarne Rolf. All rights reserved, see [LICENSE.txt](LICENSE.txt). You're welcome to read the code here, but the license doesn't allow you to reuse, modify or redistribute it.
 
-The icon shows Minecraft's granite, bricks and polished granite textures. They belong to Mojang and aren't covered by this project's license.
+The icon is an in-game screenshot of Minecraft's cobblestone, mossy cobblestone, stone bricks, mossy stone bricks, coarse dirt, grass block, gravel and dirt path blocks. Their textures belong to Mojang and aren't covered by this project's license.
 
 NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
